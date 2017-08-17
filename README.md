@@ -1,6 +1,6 @@
 # Docker Compose Redhawk
 
-This repository contains a docker-compose.yml file and supporting files for deploying a full Redhawk application on a Docker Stack.
+This repository contains a redhawk.yml file and supporting files for deploying a full [Redhawk](http://geontech.com/redhawk-sdr/) application on a Docker Stack.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ This guide requires that you have installed Docker CE and Docker Compose on each
 
 ### Images
 
-The following [Redhawk](http://geontech.com/redhawk-sdr/) images are used by the docker-compose.yml file. These images should either be available locally (see our post [here](http://geontech.com/introduction-docker-redhawk/) on how to build them), you should have internet access to the Geon Technologies' Docker Hub [registry](https://hub.docker.com/u/geontech/dashboard/), or you should have access to another registry that contains these images.
+The following [Redhawk](http://geontech.com/redhawk-sdr/) images are used by the redhawk.yml file. These images should either be available locally (see our post [here](http://geontech.com/introduction-docker-redhawk/) on how to build them), you should have internet access to the Geon Technologies' Docker Hub [registry](https://hub.docker.com/u/geontech/dashboard/), or you should have access to another registry that contains these images.
 
 * `geontech/redhawk-omniserver`
 * `geontech/redhawk-domain`
@@ -33,37 +33,45 @@ A Docker Swarm is a distributed computing cluster that is composed of one or mor
 
 ### Initialize the Swarm Manager
 
-The Swarm Manager is an active Swarm Node that controls all actions for the Swarm, most notably deploying and removing a Docker Stack. Only one Manager can exist per Swarm, and the Manager must be initialized before Workers can join the Swarm. Use the following terminal command to initialize the Swarm Manager:
+The Swarm Manager is an active Swarm Node that controls all actions for the Swarm, most notably deploying and removing a Docker Stack. A Manager must be initialized before Workers can join the Swarm. Use the following terminal command to initialize the Swarm Manager:
 
     $ docker swarm init
 
-> Note: If you receive the error "Error response from daemon: --live-restore daemon configuration is incompatible with swarm mode", remove the "live-restore":true from your `/etc/docker/daemon.json` configuration file.
+> Note: If you receive the error "Error response from daemon: --live-restore daemon configuration is incompatible with swarm mode", remove `"live-restore":true` from your `/etc/docker/daemon.json` configuration file.
 
 After executing the initialization command, the terminal will print a message with instructions on how to add a Worker to the Swarm.  The message will look like the following:
 
-    docker swarm join --token `<token>` `<ip_address>`:2377
+    docker swarm join --token <token> <ip_address>:2377
 
 If you intend to create a Swarm with multiple machines, remember the `<token>` and the `<ip_address>` that were printed to the screen above. If you have only one machine to create a Swarm, skip over the "Add Workers to the Swarm" section.
 
 ### Add Workers to the Swarm
 
-A Swarm Worker is a passive Swarm Node that runs Docker Containers based upon the deployments from the Swarm Manager. Once the Swarm Manager is initialized, you much join each Swarm Worker to the Swarm.
+A Swarm Worker is a passive Swarm Node that runs Docker Containers based upon the deployments from the Swarm Manager. Once the Swarm Manager is initialized, you much join each Worker to the Manager.
 
 > Remember: You must have Docker CE and Docker Compose installed on each machine in the Swarm, including Swarm Workers!
 
-Use the following command within the terminal of each machine that you would like to become a Swarm Worker:
+Execute the following command within the terminal of each machine that you would like to become a Swarm Worker, using the `<token>` and `<ip_address>` from the Swarm Manger initialization:
 
-    docker swarm join --token `<token>` `<ip_address>`:2377
+> Note: If you forgot the token that was generated when initializing the Swarm Manager, return to the Manager terminal and execute the `docker swarm join-token worker` command.
 
-That's it! The machine has been registered as a Swarm Worker, and no more steps need to be performed on the machine!
+    $ docker swarm join --token <token> <ip_address>:2377
+
+That's it! The machine has been registered as a Swarm Worker, and no more steps need to be performed on the machine!  
+
+To double check that the Worker has joined the Swarm, execute the following command from the terminal of the Swarm Manager:
+
+    $ docker node ls
+
+The Worker you just added should be listed along with the Manager.
 
 ## Deploy the Redhawk application on the Docker Stack
 
-In Docker Compose language, each Docker Container that makes up the Redhawk application is considered a Docker Service. A collection of these services defined in a Docker Compos `.yml` file is considered a Docker Stack.
+In Docker Compose language, each Docker Container that makes up the Redhawk application is considered a Docker Service. A collection of these services defined in a Docker Compose `.yml` file is considered a Docker Stack.
 
-To deploy the Redhawk application, execute the following terminal command on the <b>Swarm Manager</b>:
+To deploy the Redhawk application, execute the following command from the terminal of the <b>Swarm Manager</b>:
 
-    $ docker stack deploy -c docker-compose.yml redhawk
+    $ docker stack deploy -c redhawk.yml redhawk
 
 The terminal will print messages with the names of the Docker resources that it has created. It should look something like this:
 
@@ -77,6 +85,22 @@ The Redhawk application is now deployed as a Docker Stack on your Docker Swarm! 
 
     $ docker stack ps redhawk
 
-To have a visual perspective of the Docker Containers and Swarm Nodes, open a web browser and navigate to http://`<ip_address>`:8080/ , using the `<ip_address>` from the Swarm Manager from above.
+To have a visual perspective of the Docker Containers and Swarm Nodes, open a web browser and navigate to http://`<ip_address>`:8080/ , using the `<ip_address>` from the Swarm Manager from above. You are now ready to implement SDR waveforms in your distributed computing Redhawk application!
 
-You are now ready to implement SDR waveforms in your distributed computing Redhawk application! [Let us know](https://geontech.com/contact-us/) how we can help you with all your Redhawk and SDR needs!
+## Stopping the Redhawk application
+
+To stop the Docker Stack that drives the Redhawk application, execute the following command in the terminal of the Swarm Manager:
+
+    $ docker stack rm redhawk
+
+## Stopping the Docker Swarm
+
+To kill the entire Docker Swarm, execute the following command from the terminal of the Swarm Manager:
+
+    $ docker swarm leave --force
+
+To leave the Swarm from a Worker, execute the command above from the terminal of the Swarm Worker without the `--force` switch:
+
+    $ docker swarm leave
+
+As always, [let us know](https://geontech.com/contact-us/) how we can help you with all your Redhawk and SDR needs!

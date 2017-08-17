@@ -1,0 +1,63 @@
+version: '3'
+services:
+  omniserver:
+    image: geontech/redhawk-omniserver:2.0.6
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - sdrnet
+  domain:
+    image: geontech/redhawk-domain:2.0.6
+    depends_on:
+      - omniserver
+    volumes:
+      - sdrroot:/var/redhawk/sdr
+    env_file:
+      - redhawk.env
+    networks:
+      - sdrnet
+  gpp:
+    image: geontech/redhawk-gpp:2.0.6
+    depends_on:
+      - omniserver
+      - domain
+    env_file:
+      - redhawk.env
+    deploy:
+      mode: global
+    networks:
+      - sdrnet
+  development:
+    image: geontech/redhawk-development:2.0.6
+    depends_on:
+      - omniserver
+      - domain
+    env_file:
+      - redhawk.env
+    volumes:
+      - sdrroot:/var/redhawk/sdr
+      - ~/workspace:/home/user/workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: none
+    networks:
+      - sdrnet
+#  visualizer:
+#    image: dockersamples/visualizer:stable
+#    ports:
+#      - "8080:8080"
+#    volumes:
+#      - "/var/run/docker.sock:/var/run/docker.sock"
+#    deploy:
+#      placement:
+#        constraints: [node.role == manager]
+#    networks:
+#      - sdrnet
+volumes:
+  sdrroot:
+networks:
+  sdrnet:
