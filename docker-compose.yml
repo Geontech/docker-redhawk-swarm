@@ -1,0 +1,38 @@
+version: '3'
+services:
+  omniserver:
+    image: geontech/redhawk-omniserver:${REDHAWK_VERSION:-2.0.6}
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+  domain:
+    image: geontech/redhawk-domain:${REDHAWK_VERSION:-2.0.6}
+    depends_on:
+      - omniserver
+    volumes:
+      - sdrroot:/var/redhawk/sdr
+    env_file:
+      - ./rh.env
+    deploy: 
+  gpp:
+    image: geontech/redhawk-gpp:${REDHAWK_VERSION:-2.0.6}
+    depends_on:
+      - omniserver
+      - domain
+    env_file:
+      - ./rh.env
+    deploy:
+      mode: global
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+volumes:
+  sdrroot:
+    labels:
+      redhawk/sdrroot:
