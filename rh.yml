@@ -1,0 +1,36 @@
+version: '3'
+services:
+  omniserver:
+    image: geontech/redhawk-omniserver:2.0.6
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - sdrnet
+  domain:
+    image: geontech/redhawk-domain:2.0.6
+    depends_on:
+      - omniserver
+    volumes:
+      - sdrroot:/var/redhawk/sdr
+    env_file:
+      - rh.env
+    networks:
+      - sdrnet
+    command: ["wait-for-omninames", "/usr/bin/supervisord"]
+  gpp:
+    image: geontech/redhawk-gpp:2.0.6
+    depends_on:
+      - omniserver
+      - domain
+    env_file:
+      - rh.env
+    deploy:
+      mode: global
+    networks:
+      - sdrnet
+    command: ["wait-for-domain", "/usr/bin/supervisord"]
+volumes:
+  sdrroot:
+networks:
+  sdrnet:

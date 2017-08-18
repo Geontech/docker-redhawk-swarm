@@ -10,7 +10,7 @@ services:
       placement:
         constraints: [node.role == manager]
     networks:
-      - redhawk_sdrnet
+      - rh_sdrnet
 networks:
-  redhawk_sdrnet:
+  rh_sdrnet:
     external: true

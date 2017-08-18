@@ -1,0 +1,26 @@
+version: '3'
+services:
+  development:
+    image: geontech/redhawk-development:2.0.6
+    env_file:
+      - rh.env
+    environment:
+      - RHUSER_ID=$USER_ID
+      - DISPLAY=$DISPLAY
+    volumes:
+      - rh_sdrroot:/var/redhawk/sdr
+      - ~/workspace:/home/user/workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: none
+    networks:
+      - rh_sdrnet
+volumes:
+  rh_sdrroot:
+    external: true
+networks:
+  rh_sdrnet:
+    external: true
