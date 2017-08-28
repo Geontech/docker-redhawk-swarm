@@ -47,8 +47,6 @@ The Swarm Manager is an active Swarm Node that controls all actions for the Swar
 
     $ docker swarm init
 
-> Note: If you receive the error "Error response from daemon: --live-restore daemon configuration is incompatible with swarm mode", remove `"live-restore":true` from your `/etc/docker/daemon.json` configuration file.
-
 After executing the initialization command, the terminal will print a message with instructions on how to add a Worker to the Swarm.  The message will look like the following:
 
     docker swarm join --token <token> <ip_address>:2377
@@ -129,5 +127,13 @@ To kill the entire Docker Swarm and disconnect all Workers, execute the followin
 To leave the Swarm from an individual Worker, execute the command above from the terminal of the Swarm Worker without the `--force` switch:
 
     $ docker swarm leave
+
+## Troubleshooting
+
+Here is a list of issues that you may face with their solutions:
+
+* I can connect to my Redhawk Domain, but I don't see all of my Devices! <i>You may need to disable the firewall for all your Swarm Nodes to allow the Device Manager to connect. This behavior is documented in Section 2.3.1 of the [Redhawk Manual](https://redhawksdr.github.io/Documentation/mainch2.html).</i>
+* When executing `docker swarm init` I receive the message, "Error response from daemon: --live-restore daemon configuration is incompatible with swarm mode". <i>Remove `"live-restore":true` from your `/etc/docker/daemon.json` configuration file.</i>
+* When executing `docker swarm init` I receive the message, "Error response from daemon: could not choose an IP address to advertise since this system has multiple addresses on different interfaces ... - specify one with --advertise-addr". <i>Use the following format of the command: `docker swarm init --advertise-addr <ip_address>`.</i>
 
 As always, [let us know](https://geontech.com/contact-us/) how we can help you with all your Redhawk and SDR needs!
