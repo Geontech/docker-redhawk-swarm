@@ -17,7 +17,6 @@ services:
       - rh.env
     networks:
       - sdrnet
-    command: ["wait-for-omninames", "/usr/bin/supervisord"]
   gpp:
     image: geontech/redhawk-gpp:2.0.6
     depends_on:
@@ -29,7 +28,17 @@ services:
       mode: global
     networks:
       - sdrnet
-    command: ["wait-for-domain", "/usr/bin/supervisord"]
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - sdrnet
 volumes:
   sdrroot:
 networks:

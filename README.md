@@ -1,20 +1,22 @@
-# Docker Compose Redhawk
+# Docker Redhawk Swarm
 
-This repository contains a redhawk.yml file and supporting files for deploying a full [Redhawk](http://geontech.com/redhawk-sdr/) application on a Docker Stack.
+This repository contains Docker Compose files for deploying a full [Redhawk](http://geontech.com/redhawk-sdr/) application on a Docker Stack.
 
 ## Prerequisites
 
 ### Docker
 
-This guide requires that you have installed Docker CE and Docker Compose on each machine that you are using to launch the Redhawk application. For the purposes of following along with the command syntax in this guide, you should have a Linux-based operating system and the `docker` daemon should be configured to run with administrative privileges. Docker CE version `17.03.1-ce` and Docker Compose version `1.15.0` were used for this guide.
+This guide requires that you have installed Docker CE and Docker Compose on each machine that you are using to launch the [Redhawk](http://geontech.com/redhawk-sdr/) application. For the purposes of following along with the command syntax in this guide, you should have a Linux-based operating system and the `docker` daemon should be configured to run with administrative privileges. Docker CE version `17.03.1-ce` and Docker Compose version `1.15.0` were used for this guide.
 
 * See the guide [here](https://docs.docker.com/engine/installation/) to install Docker CE.
 * See the guide [here](https://docs.docker.com/engine/installation/linux/linux-postinstall/#manage-docker-as-a-non-root-user) to configure the `docker` daemon to have administrative privileges.
 * See the guide [here](https://docs.docker.com/compose/install/) to install Docker Compose.
 
-### Images
+### Docker Images
 
-The following [Redhawk](http://geontech.com/redhawk-sdr/) images are used by the redhawk.yml file. These images should either be available locally (see our post [here](http://geontech.com/introduction-docker-redhawk/) on how to build them), you should have internet access to the Geon Technologies' Docker Hub [registry](https://hub.docker.com/u/geontech/dashboard/), or you should have access to another registry that contains these images.
+The following Redhawk images are used to create the Docker Stacks. These images are pulled from Geon Technologies' Docker Hub [registry](https://hub.docker.com/u/geontech/dashboard/). Internet access to this registry is all you need!
+
+> Note: If your machines do not have internet access, setup a local Docker registry server using the guide [here](https://docs.docker.com/registry/deploying/), use our guide [here](http://geontech.com/introduction-docker-redhawk/) to build the images, and then push the images to the local registry server. You will need to tag the images with a prefix containing the hostname and port of the local registry instead of `geontech/` before pushing the images (i.e. `computer1:5000/redhawk-omniserver`).
 
 * `geontech/redhawk-omniserver`
 * `geontech/redhawk-domain`
@@ -27,7 +29,7 @@ In addition to the Redhawk images, we are also using the visualization tool from
 
 ## Setting up the Docker Swarm
 
-A Docker Swarm is a distributed computing cluster that is composed of one or more machines, or Swarm Nodes. The Swarm allows us to deploy Redhawk Docker Containers to multiple machines, achieving the goal of a distributed Software-Defined Radio processing environment.
+A Docker Swarm is a distributed computing cluster that is composed of one or more machines, or Swarm Nodes. The Swarm allows us to deploy Redhawk Docker Containers to multiple machines, achieving the goal of a distributed Software-Defined Radio processing environment!
 
 > Note: If you only have a single machine to create a Swarm and deploy your Redhawk application, that's OK! Follow the instructions below to "Initialize the Swarm Manager" and skip the "Add Workers to the Swarm" section.
 
@@ -53,7 +55,7 @@ A Swarm Worker is a passive Swarm Node that runs Docker Containers based upon th
 
 Execute the following command within the terminal of each machine that you would like to become a Swarm Worker, using the `<token>` and `<ip_address>` from the Swarm Manger initialization:
 
-> Note: If you forgot the token that was generated when initializing the Swarm Manager, return to the Manager terminal and execute the `docker swarm join-token worker` command.
+> Note: If you forgot the token that was generated when initializing the Swarm Manager, return to the Manager terminal and execute the `docker swarm join-token worker` command to view the token and IP address of the Manager.
 
     $ docker swarm join --token <token> <ip_address>:2377
 
@@ -71,35 +73,52 @@ In Docker Compose language, each Docker Container that makes up the Redhawk appl
 
 To deploy the Redhawk application, execute the following command from the terminal of the <b>Swarm Manager</b>:
 
-    $ docker stack deploy -c redhawk.yml redhawk
+    $ docker stack deploy -c rh.yml rh
 
 The terminal will print messages with the names of the Docker resources that it has created. It should look something like this:
 
-    Creating network redhawk_default
-    Creating service redhawk_omniserver
-    Creating service redhawk_domain
-    Creating service redhawk_gpp
-    Creating service redhawk_visualizer
+    Creating network rh_sdrnet
+    Creating service rh_omniserver
+    Creating service rh_domain
+    Creating service rh_gpp
+    Creating service rh_visualizer
 
 The Redhawk application is now deployed as a Docker Stack on your Docker Swarm! To view the Containers and the Swarm Nodes on which they were deployed, execute the following command:
 
-    $ docker stack ps redhawk
+    $ docker stack ps rh
 
 To have a visual perspective of the Docker Containers and Swarm Nodes, open a web browser and navigate to http://`<ip_address>`:8080/ , using the `<ip_address>` from the Swarm Manager from above. You are now ready to implement SDR waveforms in your distributed computing Redhawk application!
 
+## Developing in the Redhawk application
+
+A separate Docker Compose file exists for launching the Redhawk IDE, meaning that a separate Docker Stack will be created for the IDE. Although the Stack is separate, it still shares the same volume and network created by the `rh.yml` file. Therefore, the `rhide.yml` file <b>must</b> be deployed after the `rh.yml` file.
+
+To deploy the Redhawk IDE, execute the following commands from the terminal of the <b>Swarm Manager</b>:
+
+    $ export USER_ID=$(id -u)
+    $ docker stack deploy -c rhide.yml rhide
+
+The first command sets up an environmental variable used by the `rhide.yml` file, and the second command launches the IDE on the Swarm Manager and exports its display to that machine.
+
+> Note: Closing the Redhawk IDE window does not remove the Docker Stack. After closing the IDE window, you must remove the Stack using the `docker stack rm rhide` command before deploying `rhide.yml` again.
+
 ## Stopping the Redhawk application
 
-To stop the Docker Stack that drives the Redhawk application, execute the following command in the terminal of the Swarm Manager:
+If you deployed the Docker Stack that drives the Redhawk IDE, you <b>must</b> remove it before removing the base Redhawk application. Execute the following commands in the terminal of the Swarm Manager to stop the Redhawk IDE Docker Stack:
 
-    $ docker stack rm redhawk
+    $ docker stack rm rhide
+
+To stop the Docker Stack that drives the Redhawk application, execute the following commands in the terminal of the Swarm Manager:
+
+    $ docker stack rm rh
 
 ## Stopping the Docker Swarm
 
-To kill the entire Docker Swarm, execute the following command from the terminal of the Swarm Manager:
+To kill the entire Docker Swarm and disconnect all Workers, execute the following command from the terminal of the Swarm Manager:
 
     $ docker swarm leave --force
 
-To leave the Swarm from a Worker, execute the command above from the terminal of the Swarm Worker without the `--force` switch:
+To leave the Swarm from an individual Worker, execute the command above from the terminal of the Swarm Worker without the `--force` switch:
 
     $ docker swarm leave
 
