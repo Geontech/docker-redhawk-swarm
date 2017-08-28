@@ -39,9 +39,12 @@ If your machines do not have internet access or if you want to build your own cu
 * Use our guide [here](http://geontech.com/introduction-docker-redhawk/) to build the Redhawk images.
 * Each image must be tagged with a prefix containing the hostname and port of the local registry  instead of `geontech/`, and then the images may be pushed to the local registry. The following commands give an example of this process:
 
+```
     $ docker service create --name registry --publish 5000:5000 registry:2
     $ docker tag geontech/redhawk-omniserver computer1:5000/redhawk-omniserver
     $ docker push computer1:5000/redhawk-omniserver
+```
+
 * Update the image names in `rh.yml` and `rhide.yml` to have the prefix mentioned above. For example, `geontech/redhawk-omniserver` will have to be changed to `computer1:5000/redhawk-omniserver`.
 * Each machine will need the `"insecure-registries":[“computer1:5000"]` key added to `/etc/docker/daemon.json` if your local registry server doesn't have valid SSL certificates. If you want use valid SSL certificates, see our guide [here](http://geontech.com/using-letsencrypt-ssl-internally/) on setting up an SSL server with [Let's Encrypt](https://letsencrypt.org/).
 
@@ -142,8 +145,8 @@ To leave the Swarm from an individual Worker, execute the command above from the
 
 Here is a list of issues that you may face with their solutions:
 
-* I can connect to my Redhawk Domain, but I don't see all of my Devices! <i>You may need to disable the firewall for all your Swarm Nodes to allow the Device Manager to connect. This behavior is documented in Section 2.3.1 of the [Redhawk Manual](https://redhawksdr.github.io/Documentation/mainch2.html).</i>
-* When executing `docker swarm init` I receive the message, "Error response from daemon: --live-restore daemon configuration is incompatible with swarm mode". <i>Remove `"live-restore":true` from your `/etc/docker/daemon.json` configuration file.</i>
-* When executing `docker swarm init` I receive the message, "Error response from daemon: could not choose an IP address to advertise since this system has multiple addresses on different interfaces ... - specify one with --advertise-addr". <i>Use the following format of the command: `docker swarm init --advertise-addr <ip_address>`.</i>
+* <b>I can connect to my Redhawk Domain, but I don't see all of my Devices!</b> You may need to disable the firewall for all your Swarm Nodes to allow the Device Manager to connect. This behavior is documented in Section 2.3.1 of the [Redhawk Manual](https://redhawksdr.github.io/Documentation/mainch2.html).
+* <b>When executing `docker swarm init` I receive the message, "Error response from daemon: --live-restore daemon configuration is incompatible with swarm mode".</b> Remove `"live-restore":true` from your `/etc/docker/daemon.json` configuration file.
+* <b>When executing `docker swarm init` I receive the message, "Error response from daemon: could not choose an IP address to advertise since this system has multiple addresses on different interfaces ... - specify one with --advertise-addr".</b> Use the following format of the command: `docker swarm init --advertise-addr <ip_address>`.
 
 As always, [let us know](https://geontech.com/contact-us/) how we can help you with all your Redhawk and SDR needs!
