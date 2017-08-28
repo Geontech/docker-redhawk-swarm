@@ -16,6 +16,8 @@ This guide requires that you have installed Docker CE and Docker Compose on each
 
 ### Docker Images
 
+#### Redhawk Images
+
 The following Redhawk images are used to create the Docker Stacks. These images are pulled from Geon Technologies' Docker Hub [registry](https://hub.docker.com/u/geontech/dashboard/). Internet access to this registry is all you need!
 
 * `geontech/redhawk-omniserver`
@@ -23,17 +25,25 @@ The following Redhawk images are used to create the Docker Stacks. These images 
 * `geontech/redhawk-gpp`
 * `geontech/redhawk-development`
 
-If your machines do not have internet access, setup a local Docker registry server using the guide [here](https://docs.docker.com/registry/deploying/) and then use our guide [here](http://geontech.com/introduction-docker-redhawk/) to build the images. Each image must be tagged with a prefix containing the hostname and port of the local registry  instead of `geontech/`, and then the images may be pushed to the local registry. The following commands give an example of this process:
-
-    $ docker service create --name registry --publish 5000:5000 registry:2
-    $ docker tag geontech/redhawk-omniserver computer1:5000/redhawk-omniserver
-    $ docker push computer1:5000/redhawk-omniserver
-
-> Note: If you are using a local registry server, the image names referenced in `rh.yml` and `rhide.yml` must be updated to have the prefix mentioned above. For example, `geontech/redhawk-omniserver` will have to be changed to `computer1:5000/redhawk-omniserver`. In addition, each machine will need the `"insecure-registries":[“computer1:5000"]` key added to `/etc/docker/daemon.json` if your local registry server doesn't have valid SSL certificates. See our guide [here](http://geontech.com/using-letsencrypt-ssl-internally/) on setting up an SSL server with [Let's Encrypt](https://letsencrypt.org/).
+#### Visualizer Image
 
 In addition to the Redhawk images, we are also using the visualization tool from the Docker Hub Samples [registry](https://hub.docker.com/u/dockersamples/dashboard/). This image is not required for the run-time capabilities of the Redhawk application, but it is useful to view the Docker Containers that have been deployed to Swarm Nodes.
 
 * `dockersamples/visualizer`
+
+#### Using a Local Registry
+
+If your machines do not have internet access or if you want to build your own custom Redhawk images, you must set up a local Docker registry server. Setting up a local registry is outside the scope of this guide, but here are a few notes to help you get started:
+
+* Setup a local Docker registry server using the guide [here](https://docs.docker.com/registry/deploying/)
+* Use our guide [here](http://geontech.com/introduction-docker-redhawk/) to build the Redhawk images.
+* Each image must be tagged with a prefix containing the hostname and port of the local registry  instead of `geontech/`, and then the images may be pushed to the local registry. The following commands give an example of this process:
+
+    $ docker service create --name registry --publish 5000:5000 registry:2
+    $ docker tag geontech/redhawk-omniserver computer1:5000/redhawk-omniserver
+    $ docker push computer1:5000/redhawk-omniserver
+* Update the image names in `rh.yml` and `rhide.yml` to have the prefix mentioned above. For example, `geontech/redhawk-omniserver` will have to be changed to `computer1:5000/redhawk-omniserver`.
+* Each machine will need the `"insecure-registries":[“computer1:5000"]` key added to `/etc/docker/daemon.json` if your local registry server doesn't have valid SSL certificates. If you want use valid SSL certificates, see our guide [here](http://geontech.com/using-letsencrypt-ssl-internally/) on setting up an SSL server with [Let's Encrypt](https://letsencrypt.org/).
 
 ## Setting up the Docker Swarm
 
