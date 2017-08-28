@@ -6,7 +6,9 @@ This repository contains Docker Compose files for deploying a full [Redhawk](htt
 
 ### Docker
 
-This guide requires that you have installed Docker CE and Docker Compose on each machine that you are using to launch the [Redhawk](http://geontech.com/redhawk-sdr/) application. For the purposes of following along with the command syntax in this guide, you should have a Linux-based operating system and the `docker` daemon should be configured to run with administrative privileges. Docker CE version `17.03.1-ce` and Docker Compose version `1.15.0` were used for this guide.
+This guide requires that you have installed Docker CE and Docker Compose on each machine that you are using to launch the [Redhawk](http://geontech.com/redhawk-sdr/) application. For the purposes of following along with the command syntax in this guide, you should have a Linux-based operating system and the `docker` daemon should be configured to run with administrative privileges. Docker CE version `17.06.0-ce` and Docker Compose version `1.15.0` were used for this guide.
+
+> Note: It is recommended that you use the same versions of Docker CE and Docker Compose on all machines within your Docker Swarm. Mixing versions could cause erratic behavior.
 
 * See the guide [here](https://docs.docker.com/engine/installation/) to install Docker CE.
 * See the guide [here](https://docs.docker.com/engine/installation/linux/linux-postinstall/#manage-docker-as-a-non-root-user) to configure the `docker` daemon to have administrative privileges.
@@ -16,12 +18,18 @@ This guide requires that you have installed Docker CE and Docker Compose on each
 
 The following Redhawk images are used to create the Docker Stacks. These images are pulled from Geon Technologies' Docker Hub [registry](https://hub.docker.com/u/geontech/dashboard/). Internet access to this registry is all you need!
 
-> Note: If your machines do not have internet access, setup a local Docker registry server using the guide [here](https://docs.docker.com/registry/deploying/), use our guide [here](http://geontech.com/introduction-docker-redhawk/) to build the images, and then push the images to the local registry server. You will need to tag the images with a prefix containing the hostname and port of the local registry instead of `geontech/` before pushing the images (i.e. `computer1:5000/redhawk-omniserver`).
-
 * `geontech/redhawk-omniserver`
 * `geontech/redhawk-domain`
 * `geontech/redhawk-gpp`
 * `geontech/redhawk-development`
+
+If your machines do not have internet access, setup a local Docker registry server using the guide [here](https://docs.docker.com/registry/deploying/) and then use our guide [here](http://geontech.com/introduction-docker-redhawk/) to build the images. Each image must be tagged with a prefix containing the hostname and port of the local registry  instead of `geontech/`, and then the images may be pushed to the local registry. The following commands give an example of this process:
+
+    $ docker service create --name registry --publish 5000:5000 registry:2
+    $ docker tag geontech/redhawk-omniserver computer1:5000/redhawk-omniserver
+    $ docker push computer1:5000/redhawk-omniserver
+
+> Note: If you are using a local registry server, the image names referenced in `rh.yml` and `rhide.yml` must be updated to have the prefix mentioned above. For example, `geontech/redhawk-omniserver` will have to be changed to `computer1:5000/redhawk-omniserver`. In addition, each machine will need the `"insecure-registries":[“computer1:5000"]` key added to `/etc/docker/daemon.json` if your local registry server doesn't have valid SSL certificates. See our guide [here](http://geontech.com/using-letsencrypt-ssl-internally/) on setting up an SSL server with [Let's Encrypt](https://letsencrypt.org/).
 
 In addition to the Redhawk images, we are also using the visualization tool from the Docker Hub Samples [registry](https://hub.docker.com/u/dockersamples/dashboard/). This image is not required for the run-time capabilities of the Redhawk application, but it is useful to view the Docker Containers that have been deployed to Swarm Nodes.
 
