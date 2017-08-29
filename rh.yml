@@ -2,9 +2,6 @@ version: '3'
 services:
   omniserver:
     image: geontech/redhawk-omniserver:2.0.6
-    deploy:
-      placement:
-        constraints: [node.role == manager]
     networks:
       - sdrnet
   domain:
@@ -28,6 +25,40 @@ services:
       mode: global
     networks:
       - sdrnet
+  usrp-b200:
+    image: geontech/redhawk-usrp:2.0.6
+    depends_on:
+      - omniserver
+      - domain
+    volumes:
+      - "/dev/bus/usb:/dev/bus/usb"
+    env_file:
+      - rh.env
+    environment:
+      - USRP_TYPE=b200
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.usrp-b200 == true
+    networks:
+      - sdrnet
+  rtlsdr:
+    image: geontech/redhawk-rtl2832u:2.0.6
+    depends_on:
+      - omniserver
+      - domain
+    volumes:
+      - "/dev/bus/usb:/dev/bus/usb"
+    env_file:
+      - rh.env
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.rtlsdr == true
+    networks:
+      - sdrnet
   visualizer:
     image: dockersamples/visualizer:stable
     ports:
@@ -36,7 +67,8 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     deploy:
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - node.role == manager
     networks:
       - sdrnet
 volumes:

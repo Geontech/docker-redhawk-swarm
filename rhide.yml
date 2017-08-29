@@ -13,7 +13,8 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
     deploy:
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - node.role == manager
       restart_policy:
         condition: none
     networks:
