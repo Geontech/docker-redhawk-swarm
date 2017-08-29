@@ -2,9 +2,6 @@ version: '3'
 services:
   omniserver:
     image: geontech/redhawk-omniserver:2.0.6
-    deploy:
-      placement:
-        constraints: [node.role == manager]
     networks:
       - sdrnet
   domain:
