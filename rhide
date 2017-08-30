@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Make sure environmental variables are set
+# Note: USER_ID is the same as UID, but for some reason the
+#       rhide.yml file won't use UID
+export USER_ID=${USER_ID:-$(id -u)}
+export HOSTNAME=${HOSTNAME:-$(hostname)}
+
+# Check that this node is a Swarm Manager
+echo "Checking for this host in the Swarm ..."
+if docker node ls -f "name=$HOSTNAME"; then
+  echo
+  # Parse Argument
+  if [ -z $1 ]; then
+    # View services in stack
+    echo "Listing services in rhide stack ..."
+    docker stack ps rhide
+  elif [ $1 == "start" ]; then
+    # Check for running IDEs
+    running_ide=$(docker service ls -q -f "name=rhide_development")
+    if [ -z $running_ide ]; then
+      # Check for running Redhawk application
+      running_omni=$(docker service ls -q -f "name=rh_omniserver")
+      if [ -z $running_omni ]; then
+        echo "You must have a Redhawk application deployed before running the IDE."
+      else
+        echo "Deploying Redhawk IDE ..."
+        docker stack deploy -c rhide.yml rhide
+        echo "The GUI will appear shortly."
+        echo "REMINDER: Run the following command after closing the window: ./rhide stop"
+        echo
+      fi
+    else
+      echo "A Redhawk IDE is already deployed to this Swarm."
+      docker service ls -f "name=rhide_development"
+    fi
+  elif [ $1 == "stop" ]; then
+    # Remove the running IDE
+    docker stack rm rhide
+    echo
+  else
+    echo "Invalid argument. Valid values are [start | stop]"
+  fi
+else
+  echo
+  echo "This host must be a Swarm Manager to manage the Redhawk IDE."
+fi

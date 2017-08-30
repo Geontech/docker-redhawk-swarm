@@ -15,6 +15,7 @@ services:
       placement:
         constraints:
           - node.role == manager
+          - node.hostname == $HOSTNAME
       restart_policy:
         condition: none
     networks:

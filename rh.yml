@@ -6,8 +6,6 @@ services:
       - sdrnet
   domain:
     image: geontech/redhawk-domain:2.0.6
-    depends_on:
-      - omniserver
     volumes:
       - sdrroot:/var/redhawk/sdr
     env_file:
@@ -16,9 +14,6 @@ services:
       - sdrnet
   gpp:
     image: geontech/redhawk-gpp:2.0.6
-    depends_on:
-      - omniserver
-      - domain
     env_file:
       - rh.env
     deploy:
@@ -27,9 +22,6 @@ services:
       - sdrnet
   usrp-b200:
     image: geontech/redhawk-usrp:2.0.6
-    depends_on:
-      - omniserver
-      - domain
     volumes:
       - "/dev/bus/usb:/dev/bus/usb"
     env_file:
@@ -45,9 +37,6 @@ services:
       - sdrnet
   rtlsdr:
     image: geontech/redhawk-rtl2832u:2.0.6
-    depends_on:
-      - omniserver
-      - domain
     volumes:
       - "/dev/bus/usb:/dev/bus/usb"
     env_file:

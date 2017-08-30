@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Check that this node is a Swarm Manager
+echo "Checking for this host in the Swarm ..."
+if docker node ls -f "name=$HOSTNAME"; then
+  echo
+  # Parse Argument
+  if [ -z $1 ]; then
+    # View services in stack
+    echo "Listing services in rh stack ..."
+    docker stack ps rh
+  elif [ $1 == "start" ]; then
+    # Check for running Redhawk application
+    running_omni=$(docker service ls -q -f "name=rh_omniserver")
+    if [ -z $running_omni ]; then
+      echo "Deploying Redhawk application ..."
+      docker stack deploy -c rh.yml rh
+      echo
+    else
+      echo "A Redhawk application is already deployed to this Swarm."
+    fi
+  elif [ $1 == "stop" ]; then
+    # Remove the IDE and then the application
+    docker stack rm rhide
+    docker stack rm rh
+    echo
+  else
+    echo "Invalid argument. Valid values are [start | stop]"
+  fi
+else
+  echo
+  echo "This host must be a Swarm Manager to manage the Redhawk application."
+fi
