@@ -20,7 +20,7 @@ services:
       mode: global
     networks:
       - sdrnet
-  usrp-b200:
+  usrp_b200:
     image: geontech/redhawk-usrp:2.0.6
     volumes:
       - "/dev/bus/usb:/dev/bus/usb"
@@ -32,10 +32,10 @@ services:
       mode: global
       placement:
         constraints:
-          - node.labels.usrp-b200 == true
+          - node.labels.usrp_b200 == true
     networks:
       - sdrnet
-  rtlsdr:
+  rtl2832u:
     image: geontech/redhawk-rtl2832u:2.0.6
     volumes:
       - "/dev/bus/usb:/dev/bus/usb"
@@ -45,7 +45,22 @@ services:
       mode: global
       placement:
         constraints:
-          - node.labels.rtlsdr == true
+          - node.labels.rtl2832u == true
+    networks:
+      - sdrnet
+  bu353s4:
+    image: geontech/redhawk-bu353s4:2.0.6
+    volumes:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    env_file:
+      - rh.env
+    environment:
+      - GPS_PORT=/dev/ttyUSB0
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.bu353s4 == true
     networks:
       - sdrnet
   visualizer:

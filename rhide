@@ -27,7 +27,6 @@ if docker node ls -f "name=$HOSTNAME"; then
         echo "Deploying Redhawk IDE ..."
         docker stack deploy -c rhide.yml rhide
         echo "The GUI will appear shortly."
-        echo "REMINDER: Run the following command after closing the window: ./rhide stop"
         echo
       fi
     else
