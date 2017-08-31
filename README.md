@@ -1,6 +1,6 @@
 # Docker Redhawk Swarm
 
-This repository contains Docker Compose files and scripts for deploying a [Redhawk](http://geontech.com/redhawk-sdr/) application as a Docker Stack.
+This repository contains Docker Compose files and scripts for deploying a [Redhawk](http://geontech.com/redhawk-sdr/) application to a Docker Swarm.
 
 ## Prerequisites
 
