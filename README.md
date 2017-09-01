@@ -125,6 +125,8 @@ The next step is label each Node with the device name. Execute the following com
 
 Execute the following command from any Swarm Manager for Nodes that have a bu353s4 GPS attached:
 
+> Note: Currently the bu353s4 ***must*** be mounted at `/dev/ttyUSB0`, so make sure it is the first serial USB device you plug in to your machine!
+
     $ docker node update <NODE_HOSTNAME> --label-add "bu353s4=true"
 
 Execute the following command from any Swarm Manager for Nodes that have an RTL SDR attached:
