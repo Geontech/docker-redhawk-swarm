@@ -12,6 +12,11 @@ services:
       - rh.env
     networks:
       - sdrnet
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+          - node.hostname == $HOSTNAME
   gpp:
     image: geontech/redhawk-gpp:2.0.6
     env_file:

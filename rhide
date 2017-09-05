@@ -4,7 +4,6 @@
 # Note: USER_ID is the same as UID, but for some reason the
 #       rhide.yml file won't use UID
 export USER_ID=${USER_ID:-$(id -u)}
-export HOSTNAME=${HOSTNAME:-$(hostname)}
 
 # Check that this node is a Swarm Manager
 echo "Checking for this host in the Swarm ..."

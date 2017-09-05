@@ -61,7 +61,7 @@ A Swarm must be initialized before Nodes can join the Swarm, and the machine tha
 
 You now have a fully functional Docker Swarm comprised of a single Docker Manager!
 
-> Note: If you don't have any more machines to add to the Swarm, you should skip to the "Deploying the Redhawk application on the Swarm" section. 
+> Note: If you don't have any more machines to add to the Swarm, you should skip to the "Deploying the Redhawk application on the Swarm" section.
 
 In order to add Nodes to the Swarm, we first need to get the tokens that allow us to join the Swarm as either a Manager or Worker. Execute the following command from the Manager to get the Manager token:
 
@@ -155,7 +155,7 @@ To have a visual perspective of the Docker Containers and Swarm Nodes, open a we
 
 A separate Docker Compose file exists for launching the Redhawk IDE, meaning that a separate Docker Stack will be created for the IDE. Although the Stack is separate, it still shares the same volume and network created by the `rh.yml` file. Therefore, the `rhide.yml` file <b>must</b> be deployed after the `rh.yml` file.
 
-To deploy the Redhawk IDE, execute the following command from the <b>local</b> terminal of a Swarm Manager with a display:
+To deploy the Redhawk IDE, execute the following command from the <b>local</b> terminal of the Swarm Manager you used to deploy the Redhawk application (make sure it has a display!):
 
     $ ./rhide start
 
